@@ -61,14 +61,17 @@ jobs:
           echo "Build output contents:"
           ls -la dist/public/ || echo "dist/public not found"
           echo "---"
-          echo "Checking index.html:"
-          cat dist/public/index.html | head -50 || echo "index.html not found"
+          echo "Full index.html content:"
+          cat dist/public/index.html || echo "index.html not found"
           echo "---"
           echo "Checking if base path is in index.html:"
-          grep -o 'wojp-corporate' dist/public/index.html | head -5 || echo "base path not found in index.html"
+          grep -i 'wojp-corporate' dist/public/index.html || echo "base path not found in index.html"
           echo "---"
-          echo "Checking all files in dist/public:"
-          find dist/public -type f | head -20
+          echo "Checking script and link tags:"
+          grep -E '<script|<link' dist/public/index.html || echo "No script/link tags found"
+          echo "---"
+          echo "All files in dist/public:"
+          find dist/public -type f
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
