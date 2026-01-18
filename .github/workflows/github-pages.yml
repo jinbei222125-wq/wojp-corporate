@@ -52,6 +52,7 @@ jobs:
         run: pnpm build
         env:
           NODE_ENV: production
+          VITE_BASE_PATH: /wojp-corporate/
 
       - name: Check build output
         run: |
