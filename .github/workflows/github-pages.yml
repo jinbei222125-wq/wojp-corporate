@@ -49,7 +49,9 @@ jobs:
         run: pnpm install
 
       - name: Build
-        run: pnpm build
+        run: |
+          echo "VITE_BASE_PATH=$VITE_BASE_PATH"
+          pnpm build
         env:
           NODE_ENV: production
           VITE_BASE_PATH: /wojp-corporate/
@@ -58,7 +60,12 @@ jobs:
         run: |
           echo "Build output contents:"
           ls -la dist/public/ || echo "dist/public not found"
-          ls -la dist/public/*.html || echo "No HTML files found"
+          echo "---"
+          echo "Checking index.html:"
+          head -30 dist/public/index.html || echo "index.html not found"
+          echo "---"
+          echo "Checking if base path is in index.html:"
+          grep -o 'wojp-corporate' dist/public/index.html | head -3 || echo "base path not found in index.html"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
