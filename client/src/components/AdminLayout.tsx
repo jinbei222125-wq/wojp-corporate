@@ -34,6 +34,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
   }, []);
 
+  // Debug logging
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      console.log("[AdminLayout] State:", { user, loading, role: user?.role });
+    }
+  }, [user, loading]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-anthracite flex items-center justify-center">

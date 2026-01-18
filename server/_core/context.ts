@@ -31,14 +31,25 @@ export async function createContext(
 
   // Development mode: allow bypassing auth with ?devAdmin=true query param
   if (!ENV.isProduction) {
-    const devAdmin = opts.req.query?.devAdmin === "true" || opts.req.headers["x-dev-admin"] === "true";
+    const devAdminHeader = opts.req.headers["x-dev-admin"];
+    const devAdminQuery = opts.req.query?.devAdmin;
+    const devAdmin = devAdminQuery === "true" || devAdminHeader === "true";
+    
     if (devAdmin) {
+      console.log("[DevAdmin] Creating dev admin user", { devAdminQuery, devAdminHeader });
       user = createDevAdminUser();
       return {
         req: opts.req,
         res: opts.res,
         user,
       };
+    } else {
+      console.log("[DevAdmin] No dev admin detected", { 
+        isProduction: ENV.isProduction, 
+        devAdminQuery, 
+        devAdminHeader,
+        headers: Object.keys(opts.req.headers)
+      });
     }
   }
 

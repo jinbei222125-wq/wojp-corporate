@@ -22,6 +22,7 @@ const footerLinks = {
   support: [
     { href: "/contact", label: "お問い合わせ" },
     { href: "#", label: "よくある質問" },
+    { href: "/admin", label: "管理画面" },
   ],
 };
 

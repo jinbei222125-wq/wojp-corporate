@@ -1,12 +1,14 @@
 import express, { type Express } from "express";
 import fs from "fs";
 import { type Server } from "http";
-import { nanoid } from "nanoid";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
 
 export async function setupVite(app: Express, server: Server) {
+  const projectRoot = path.resolve(import.meta.dirname, "../..");
+  const clientRoot = path.resolve(projectRoot, "client");
+  
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
@@ -15,14 +17,40 @@ export async function setupVite(app: Express, server: Server) {
 
   const vite = await createViteServer({
     ...viteConfig,
+    root: clientRoot,
+    resolve: {
+      ...viteConfig.resolve,
+      alias: {
+        "@": path.resolve(clientRoot, "src"),
+        "@shared": path.resolve(projectRoot, "shared"),
+        "@assets": path.resolve(projectRoot, "attached_assets"),
+      },
+    },
     configFile: false,
     server: serverOptions,
     appType: "custom",
   });
 
+  // Vite middleware must be registered before any catch-all routes
   app.use(vite.middlewares);
-  app.use("*", async (req, res, next) => {
+  
+  // SPA fallback: serve index.html for HTML page requests only
+  // Vite middleware handles /src/*, /@vite/*, and other asset requests
+  app.get("*", async (req, res, next) => {
     const url = req.originalUrl;
+    
+    // Skip if it's an API route
+    if (url.startsWith("/api")) {
+      return next();
+    }
+    
+    // Skip if it's a Vite-related path (/src, /@vite, /node_modules, assets)
+    if (url.startsWith("/src") || 
+        url.startsWith("/@vite") || 
+        url.startsWith("/node_modules") ||
+        url.match(/\.(js|mjs|jsx|ts|tsx|css|json|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|map)$/)) {
+      return next();
+    }
 
     try {
       const clientTemplate = path.resolve(
@@ -34,10 +62,7 @@ export async function setupVite(app: Express, server: Server) {
 
       // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
-      template = template.replace(
-        `src="/src/main.tsx"`,
-        `src="/src/main.tsx?v=${nanoid()}"`
-      );
+      // Use transformIndexHtml which handles all script/link transformations automatically
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
