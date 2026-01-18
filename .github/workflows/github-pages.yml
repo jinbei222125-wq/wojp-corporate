@@ -53,6 +53,8 @@ jobs:
           echo "=== Build Environment ==="
           echo "VITE_BASE_PATH=$VITE_BASE_PATH"
           echo "NODE_ENV=$NODE_ENV"
+          export VITE_BASE_PATH="/wojp-corporate/"
+          echo "Exported VITE_BASE_PATH=$VITE_BASE_PATH"
           echo "=== Starting Build ==="
           pnpm build
           echo "=== Build Complete ==="
