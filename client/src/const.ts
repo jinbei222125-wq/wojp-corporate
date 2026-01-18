@@ -10,12 +10,13 @@ export const getLoginUrl = () => {
   const oauthPortalUrl = import.meta.env.VITE_OAUTH_PORTAL_URL;
   const appId = import.meta.env.VITE_APP_ID;
   
-  // Development mode: return a placeholder URL if OAuth is not configured
+  // Return a placeholder URL if OAuth is not configured (both dev and prod)
+  // This allows the app to load even without OAuth configuration
   if (!oauthPortalUrl || oauthPortalUrl.trim() === "" || !appId || appId.trim() === "") {
     if (import.meta.env.DEV) {
-      return "/";
+      console.warn("[getLoginUrl] OAuth not configured, using fallback URL");
     }
-    throw new Error("OAuth configuration is required in production");
+    return "/";
   }
   
   const redirectUri = `${window.location.origin}/api/oauth/callback`;

@@ -70,7 +70,13 @@ export default function DashboardLayout({
           </div>
           <Button
             onClick={() => {
-              window.location.href = getLoginUrl();
+              try {
+                window.location.href = getLoginUrl();
+              } catch (error) {
+                // If getLoginUrl fails, redirect to home page instead
+                console.warn("[DashboardLayout] Failed to get login URL, redirecting to home:", error);
+                window.location.href = "/";
+              }
             }}
             size="lg"
             className="w-full shadow-lg hover:shadow-xl transition-all"

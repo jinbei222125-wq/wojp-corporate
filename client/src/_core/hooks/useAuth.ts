@@ -9,17 +9,15 @@ type UseAuthOptions = {
 };
 
 export function useAuth(options?: UseAuthOptions) {
-  // Development mode: use "/" as default redirect path if OAuth is not configured
+  // Use "/" as default redirect path if OAuth is not configured
+  // getLoginUrl() now returns "/" instead of throwing in both dev and prod
   let defaultRedirectPath = "/";
   try {
     defaultRedirectPath = getLoginUrl();
   } catch (error) {
-    // If getLoginUrl fails (e.g., OAuth not configured), use "/" as fallback
-    if (import.meta.env.DEV) {
-      defaultRedirectPath = "/";
-    } else {
-      throw error;
-    }
+    // Fallback to "/" if getLoginUrl fails (should not happen, but safety check)
+    console.warn("[useAuth] Failed to get login URL, using fallback:", error);
+    defaultRedirectPath = "/";
   }
   const { redirectOnUnauthenticated = false, redirectPath = defaultRedirectPath } =
     options ?? {};

@@ -18,7 +18,13 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
 
   if (!isUnauthorized) return;
 
-  window.location.href = getLoginUrl();
+  try {
+    window.location.href = getLoginUrl();
+  } catch (err) {
+    // If getLoginUrl fails, redirect to home page instead
+    console.warn("[redirectToLoginIfUnauthorized] Failed to get login URL, redirecting to home:", err);
+    window.location.href = "/";
+  }
 };
 
 queryClient.getQueryCache().subscribe(event => {
@@ -44,10 +50,10 @@ const trpcClient = trpc.createClient({
       transformer: superjson,
       fetch(input, init) {
         const headers = new Headers(init?.headers);
-        // Development mode: add dev admin header if ?devAdmin=true is in URL
+        // Development mode: add dev admin header for admin routes
         if (import.meta.env.DEV && typeof window !== "undefined") {
-          const urlParams = new URLSearchParams(window.location.search);
-          if (urlParams.get("devAdmin") === "true") {
+          const pathname = window.location.pathname;
+          if (pathname.startsWith("/admin")) {
             headers.set("x-dev-admin", "true");
           }
         }
