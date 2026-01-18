@@ -62,10 +62,13 @@ jobs:
           ls -la dist/public/ || echo "dist/public not found"
           echo "---"
           echo "Checking index.html:"
-          head -30 dist/public/index.html || echo "index.html not found"
+          cat dist/public/index.html | head -50 || echo "index.html not found"
           echo "---"
           echo "Checking if base path is in index.html:"
-          grep -o 'wojp-corporate' dist/public/index.html | head -3 || echo "base path not found in index.html"
+          grep -o 'wojp-corporate' dist/public/index.html | head -5 || echo "base path not found in index.html"
+          echo "---"
+          echo "Checking all files in dist/public:"
+          find dist/public -type f | head -20
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
