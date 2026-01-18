@@ -1,0 +1,1 @@
+ALTER TABLE `news` ADD COLUMN `isPublished` int NOT NULL DEFAULT 1;
