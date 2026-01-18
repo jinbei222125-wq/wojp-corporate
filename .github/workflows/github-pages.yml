@@ -64,28 +64,61 @@ jobs:
 
       - name: Check build output
         run: |
-          echo "Build output contents:"
-          ls -la dist/public/ || echo "dist/public not found"
-          echo "---"
-          echo "Full index.html content:"
-          cat dist/public/index.html || echo "index.html not found"
-          echo "---"
+          echo "=== Build Output Check ==="
+          echo "Checking if dist/public exists:"
+          if [ ! -d "dist/public" ]; then
+            echo "ERROR: dist/public directory not found!"
+            exit 1
+          fi
+          echo "✓ dist/public directory exists"
+          echo ""
+          echo "Listing dist/public contents:"
+          ls -la dist/public/ || exit 1
+          echo ""
+          echo "Checking for index.html:"
+          if [ ! -f "dist/public/index.html" ]; then
+            echo "ERROR: index.html not found in dist/public!"
+            exit 1
+          fi
+          echo "✓ index.html exists"
+          echo ""
+          echo "File size of index.html:"
+          ls -lh dist/public/index.html
+          echo ""
+          echo "First 10 lines of index.html:"
+          head -10 dist/public/index.html
+          echo ""
           echo "Checking if base path is in index.html:"
-          grep -i 'wojp-corporate' dist/public/index.html || echo "base path not found in index.html"
-          echo "---"
+          if grep -q "wojp-corporate" dist/public/index.html; then
+            echo "✓ Base path '/wojp-corporate/' found in index.html"
+          else
+            echo "⚠ Base path not found in index.html (might be using relative paths)"
+          fi
+          echo ""
           echo "Checking script and link tags:"
-          grep -E '<script|<link' dist/public/index.html || echo "No script/link tags found"
-          echo "---"
+          grep -E '<script|<link' dist/public/index.html | head -5 || echo "No script/link tags found"
+          echo ""
           echo "All files in dist/public:"
-          find dist/public -type f
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+          find dist/public -type f | head -20
 
       - name: Create .nojekyll file
         run: |
           touch dist/public/.nojekyll
           echo "Created .nojekyll file for GitHub Pages"
+          ls -la dist/public/.nojekyll
+
+      - name: Verify index.html before upload
+        run: |
+          echo "=== Final Verification ==="
+          if [ ! -f "dist/public/index.html" ]; then
+            echo "ERROR: index.html missing before upload!"
+            exit 1
+          fi
+          echo "✓ index.html confirmed before upload"
+          echo "File path: $(realpath dist/public/index.html)"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
