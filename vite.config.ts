@@ -13,6 +13,11 @@ export default defineConfig(({ mode }) => {
   // GitHub Pages用のbaseパスを設定
   const basePath = process.env.VITE_BASE_PATH || "/";
   
+  // デバッグ: basePathの値をログ出力
+  if (process.env.NODE_ENV === "production") {
+    console.log(`[vite.config] basePath = "${basePath}"`);
+  }
+  
   return {
     plugins,
     base: basePath,

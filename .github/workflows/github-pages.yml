@@ -50,8 +50,12 @@ jobs:
 
       - name: Build
         run: |
+          echo "=== Build Environment ==="
           echo "VITE_BASE_PATH=$VITE_BASE_PATH"
+          echo "NODE_ENV=$NODE_ENV"
+          echo "=== Starting Build ==="
           pnpm build
+          echo "=== Build Complete ==="
         env:
           NODE_ENV: production
           VITE_BASE_PATH: /wojp-corporate/
@@ -75,6 +79,11 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
+
+      - name: Create .nojekyll file
+        run: |
+          touch dist/public/.nojekyll
+          echo "Created .nojekyll file for GitHub Pages"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
